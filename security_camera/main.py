@@ -7,17 +7,13 @@ from flask_basicauth import BasicAuth
 import time
 import threading
 
-email_update_interval = 600 # sends an email only once in this time interval
+email_update_interval = 3 # sends an email only once in this time interval
 video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
 object_classifier = cv2.CascadeClassifier("models/fullbody_recognition_model.xml") # an opencv classifier
 
 # App Globals (do not edit)
 app = Flask(__name__)
-app.config['BASIC_AUTH_USERNAME'] = 'CHANGE_ME_USERNAME'
-app.config['BASIC_AUTH_PASSWORD'] = 'CHANGE_ME_PLEASE'
-app.config['BASIC_AUTH_FORCE'] = True
 
-basic_auth = BasicAuth(app)
 last_epoch = 0
 
 def check_for_objects():
@@ -27,14 +23,13 @@ def check_for_objects():
 			frame, found_obj = video_camera.get_object(object_classifier)
 			if found_obj and (time.time() - last_epoch) > email_update_interval:
 				last_epoch = time.time()
-				print "Sending email..."
+				print ("Sending email...")
 				sendEmail(frame)
-				print "done!"
+				print ("done!")
 		except:
-			print "Error sending email: ", sys.exc_info()[0]
+			print ("Error sending email: ", sys.exc_info()[0])
 
 @app.route('/')
-@basic_auth.required
 def index():
     return render_template('index.html')
 
